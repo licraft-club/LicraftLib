@@ -1,0 +1,7 @@
+name: LicraftLib
+main: com.licrafter.lib.LicraftLib
+version: 1.0.0
+author: shell
+website: http://mc.licrafter.com
+description: base lib plugin
+depend: []
