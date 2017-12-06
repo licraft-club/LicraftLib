@@ -13,7 +13,8 @@ repositories {
 **Step 2.** Add the dependency
 ```
 dependencies {
-   compile 'com.github.licraft-club:LicraftLib:-SNAPSHOT'
+    compile 'com.github.licraft-club.LicraftLib:LicraftLib:-SNAPSHOT'
+    compile 'com.github.licraft-club.LicraftLib:licraft-apt:-SNAPSHOT'
 }
 ```
 # Note
