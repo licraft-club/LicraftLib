@@ -17,5 +17,5 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
-    provided 'org.spigotmc:spigot-api:1.12-R0.1-SNAPSHOT'
+    compile 'org.spigotmc:spigot-api:1.12-R0.1-SNAPSHOT'
 }
