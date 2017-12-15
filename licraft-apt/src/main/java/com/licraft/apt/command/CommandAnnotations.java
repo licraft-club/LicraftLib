@@ -2,6 +2,7 @@ package com.licraft.apt.command;
 
 import org.bukkit.plugin.Plugin;
 import com.licraft.apt.AnnotationsAbstract;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Method;
 import java.util.HashSet;
@@ -43,7 +44,7 @@ public class CommandAnnotations extends AnnotationsAbstract {
 	}
 
 	@Override
-	public void load(Plugin plugin, Object clazz) {
+	public void load(JavaPlugin plugin, Object clazz) {
 		registerCommands(plugin, clazz);
 	}
 }

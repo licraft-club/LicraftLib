@@ -2,6 +2,7 @@ package com.licraft.apt.message;
 
 import org.bukkit.plugin.Plugin;
 import com.licraft.apt.AnnotationsAbstract;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Field;
 
@@ -13,7 +14,7 @@ public class MessageAnnotations extends AnnotationsAbstract {
 	 * @param plugin        {@link Plugin} to load the messages form
 	 * @param classesToLoad Array of classes to set the fields in
 	 */
-	public MessageAnnotations loadValues(Plugin plugin, Object... classesToLoad) {
+	public MessageAnnotations loadValues(JavaPlugin plugin, Object... classesToLoad) {
 		if (plugin == null) { throw new IllegalArgumentException("plugin cannot be null"); }
 		if (classesToLoad.length == 0) { throw new IllegalArgumentException("classes cannot be empty"); }
 		for (Object toLoad : classesToLoad) {
@@ -28,7 +29,7 @@ public class MessageAnnotations extends AnnotationsAbstract {
 	 * @param plugin      {@link Plugin} to load the messages form
 	 * @param classToLoad Class to set the fields in
 	 */
-	public MessageAnnotations loadValues(Plugin plugin, Object classToLoad) {
+	public MessageAnnotations loadValues(JavaPlugin plugin, Object classToLoad) {
 		if (plugin == null) { throw new IllegalArgumentException("plugin cannot be null"); }
 		if (classToLoad == null) { throw new IllegalArgumentException("class cannot be null"); }
 		Class<?> clazz = classToLoad.getClass();
@@ -68,7 +69,7 @@ public class MessageAnnotations extends AnnotationsAbstract {
 	}
 
 	@Override
-	public void load(Plugin plugin, Object clazz) {
+	public void load(JavaPlugin plugin, Object clazz) {
 		loadValues(plugin, clazz);
 	}
 }

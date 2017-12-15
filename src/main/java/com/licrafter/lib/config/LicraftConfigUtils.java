@@ -33,6 +33,7 @@ public class LicraftConfigUtils {
 
     /**
      * write default file from jar
+     * same as plugin saveResource
      *
      * @param plugin
      * @param writeName

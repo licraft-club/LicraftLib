@@ -6,13 +6,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Created by shell on 2017/12/8.
+ * Created by shell on 2017/12/15.
  * <p>
  * Github: https://github.com/shellljx
  */
-@Target(ElementType.FIELD)
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ConfigSection {
+public @interface ConfigBean {
 
-    String path();
+    String file() default "config.yml";
+
 }

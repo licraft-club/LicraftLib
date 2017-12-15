@@ -1,10 +1,11 @@
 package com.licraft.apt;
 
-import org.bukkit.plugin.Plugin;
+
+import org.bukkit.plugin.java.JavaPlugin;
 
 public abstract class AnnotationsAbstract {
 
-	public void load(Plugin plugin, Object clazz) {
+	public void load(JavaPlugin plugin, Object clazz) {
 	}
 
 }

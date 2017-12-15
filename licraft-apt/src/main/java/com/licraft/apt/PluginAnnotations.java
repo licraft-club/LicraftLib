@@ -2,8 +2,8 @@ package com.licraft.apt;
 
 import com.licraft.apt.command.CommandAnnotations;
 import com.licraft.apt.message.MessageAnnotations;
-import org.bukkit.plugin.Plugin;
 import com.licraft.apt.config.ConfigAnnotations;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class PluginAnnotations {
 
@@ -16,7 +16,7 @@ public class PluginAnnotations {
 			MESSAGE,
 			COMMAND };
 
-	public static void loadAll(Plugin plugin, Object classToLoad) {
+	public static void loadAll(JavaPlugin plugin, Object classToLoad) {
 		for (AnnotationsAbstract annotation : ALL_ANNOTATIONS) {
 			annotation.load(plugin, classToLoad);
 		}

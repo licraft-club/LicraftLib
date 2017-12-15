@@ -1,11 +1,12 @@
 package com.licraft.apt.config;
 
-import com.licrafter.lib.log.LicraftLog;
+import com.licrafter.lib.config.DataConfigFile;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import com.licraft.apt.AnnotationsAbstract;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -23,7 +24,7 @@ public class ConfigAnnotations extends AnnotationsAbstract {
      * @param plugin        {@link Plugin} to load the configuration form
      * @param classesToLoad Array of classes to set the fields in
      */
-    public ConfigAnnotations loadValues(Plugin plugin, Object... classesToLoad) {
+    public ConfigAnnotations loadValues(JavaPlugin plugin, Object... classesToLoad) {
         if (plugin == null) {
             throw new IllegalArgumentException("plugin cannot be null");
         }
@@ -43,22 +44,36 @@ public class ConfigAnnotations extends AnnotationsAbstract {
      * @param classToLoad
      * @return
      */
-    public ConfigAnnotations loadValues(Plugin plugin, Object classToLoad) {
+    public ConfigAnnotations loadValues(JavaPlugin plugin, Object classToLoad) {
         if (plugin == null) {
             throw new IllegalArgumentException("plugin cannot be null");
         }
         if (classToLoad == null) {
             throw new IllegalArgumentException("class cannot be null");
         }
-        for (Field field : classToLoad.getClass().getDeclaredFields()) {
-            ConfigValue configValue = field.getAnnotation(ConfigValue.class);
-            ConfigSection configSection = field.getAnnotation(ConfigSection.class);
-            if (configValue != null) {
-                decodeValueFromYml(configValue, field, null, plugin, classToLoad);
-            } else if (configSection != null) {
-                decodeSectionFromYml(configSection, field, plugin, classToLoad);
+
+        ConfigBean configBean = classToLoad.getClass().getAnnotation(ConfigBean.class);
+
+        if (configBean != null) {
+            String configFile = configBean.file();
+            FileConfiguration config;
+            if (configFile.equals("config.yml")){
+                config = plugin.getConfig();
+            }else {
+                DataConfigFile dataConfigFile = new DataConfigFile(plugin,configFile);
+                config = dataConfigFile.getDataConfig();
+            }
+            for (Field field : classToLoad.getClass().getDeclaredFields()) {
+                ConfigValue configValue = field.getAnnotation(ConfigValue.class);
+                ConfigSection configSection = field.getAnnotation(ConfigSection.class);
+                if (configValue != null) {
+                    decodeValueFromYml(configValue, field, null, config, classToLoad);
+                } else if (configSection != null) {
+                    decodeSectionFromYml(configSection, field, config, classToLoad);
+                }
             }
         }
+
         return this;
     }
 
@@ -67,36 +82,33 @@ public class ConfigAnnotations extends AnnotationsAbstract {
      *
      * @param configSection
      * @param field
-     * @param plugin
+     * @param config
      * @param classToLoad
      */
-    private void decodeSectionFromYml(ConfigSection configSection, Field field, Plugin plugin, Object classToLoad) {
+    private void decodeSectionFromYml(ConfigSection configSection, Field field,FileConfiguration config ,Object classToLoad) {
         Class<?> clazz = classToLoad.getClass();
-        FileConfiguration config = plugin.getConfig();
 
         if (field.getType() == List.class) {
             Type genericType = field.getGenericType();
             if (genericType != null && genericType instanceof ParameterizedType) {
                 ParameterizedType pt = (ParameterizedType) genericType;
                 Class<?> genericClazz = (Class<?>) pt.getActualTypeArguments()[0];
+                field.setAccessible(true);
                 try {
-                    List listObject = new ArrayList<>();
-                    ConfigurationSection configurationSection = config.getConfigurationSection(configSection.path());
-                    Set<String> listKeySet = configurationSection.getKeys(false);
-                    for (String key : listKeySet) {
-                        Object tempObject = genericClazz.newInstance();
-                        for (Field childField : genericClazz.getDeclaredFields()) {
-                            ConfigValue childConfigValue = childField.getAnnotation(ConfigValue.class);
-                            if (childConfigValue != null) {
-                                field.setAccessible(true);
-                                if (config.contains(configSection.path())) {
-                                    decodeValueFromYml(childConfigValue, childField, configSection.path() + "." + key, plugin, tempObject);
-                                }
+                    List sectionValue = new ArrayList<>();
+                    ConfigurationSection section = config.getConfigurationSection(configSection.path());
+                    Set<String> sectionKeySet = section.getKeys(false);
+                    for (String key : sectionKeySet) {
+                        Object genericObject = genericClazz.newInstance();
+                        for (Field genericField : genericClazz.getDeclaredFields()) {
+                            ConfigValue genericConfigValue = genericField.getAnnotation(ConfigValue.class);
+                            if (genericConfigValue != null && config.contains(configSection.path())) {
+                                decodeValueFromYml(genericConfigValue, genericField, configSection.path() + "." + key, config, genericObject);
                             }
                         }
-                        listObject.add(tempObject);
+                        sectionValue.add(genericObject);
                     }
-                    field.set(classToLoad, listObject);
+                    field.set(classToLoad, sectionValue);
                 } catch (Exception e) {
                     throw new RuntimeException("Fiald get field new Instance of '" + genericClazz.getName() + "' in " + clazz + "\n" + e);
                 }
@@ -111,14 +123,12 @@ public class ConfigAnnotations extends AnnotationsAbstract {
      *
      * @param configValue
      * @param field
-     * @param plugin
+     * @param config
      * @param classToLoad
      */
-    private void decodeValueFromYml(ConfigValue configValue, Field field, String parentPath, Plugin plugin, Object classToLoad) {
+    private void decodeValueFromYml(ConfigValue configValue, Field field, String parentPath,FileConfiguration config, Object classToLoad) {
         Class<?> clazz = classToLoad.getClass();
-        FileConfiguration config = plugin.getConfig();
         String path = parentPath == null ? configValue.path() : parentPath + "." + configValue.path();
-        LicraftLog.consoleMessage(path);
 
         try {
             field.setAccessible(true);
@@ -148,7 +158,7 @@ public class ConfigAnnotations extends AnnotationsAbstract {
     }
 
     @Override
-    public void load(Plugin plugin, Object clazz) {
+    public void load(JavaPlugin plugin, Object clazz) {
         loadValues(plugin, clazz);
     }
 }

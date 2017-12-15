@@ -1,5 +1,7 @@
 package com.licrafter.lib.config;
 
+import com.google.common.base.Charsets;
+import com.licrafter.lib.log.LicraftLog;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -8,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.logging.Level;
 
 /**
  * Created by shell on 2017/12/2.
@@ -18,43 +19,66 @@ import java.util.logging.Level;
 public class DataConfigFile {
 
     private JavaPlugin plugin;
-    private FileConfiguration configuration = null;
-    private File configurationFile = null;
+    private FileConfiguration newDataConfig = null;
+    private File dataConfigFile = null;
     private String fileName;
 
     public DataConfigFile(JavaPlugin plugin, String fileName) {
         this.plugin = plugin;
         this.fileName = fileName;
+        this.dataConfigFile = new File(plugin.getDataFolder(), fileName);
     }
 
     public void reloadDataConfig() {
-        if (configurationFile == null) {
-            configurationFile = new File(plugin.getDataFolder(), fileName);
-        }
-        configuration = YamlConfiguration.loadConfiguration(configurationFile);
+        newDataConfig = YamlConfiguration.loadConfiguration(dataConfigFile);
+
         InputStream defInputStream = plugin.getResource(fileName);
+        if (defInputStream == null) {
+            return;
+        }
+
+        InputStreamReader streamReader = new InputStreamReader(defInputStream, Charsets.UTF_8);
+
+        newDataConfig.setDefaults(YamlConfiguration.loadConfiguration(streamReader));
+
         if (defInputStream != null) {
-            InputStreamReader reader = new InputStreamReader(defInputStream);
-            YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(reader);
-            configuration.setDefaults(defConfig);
+            try {
+                defInputStream.close();
+            } catch (IOException e) {
+                LicraftLog.consoleMessage(plugin, "Faild close DataConfigFile inputStream!");
+            }
+        }
+
+        if (streamReader != null) {
+            try {
+                streamReader.close();
+            } catch (IOException e) {
+                LicraftLog.consoleMessage(plugin, "Faild close DataConfigFile streamReader!");
+            }
         }
     }
 
     public FileConfiguration getDataConfig() {
-        if (configuration == null) {
+        if (newDataConfig == null) {
             this.reloadDataConfig();
         }
-        return configuration;
+        return newDataConfig;
     }
 
     public void saveDataConfig() {
-        if (configuration == null || configurationFile == null) {
+        if (newDataConfig == null || dataConfigFile == null) {
             return;
         }
         try {
-            getDataConfig().save(configurationFile);
+            getDataConfig().save(dataConfigFile);
         } catch (IOException ex) {
-            plugin.getLogger().log(Level.SEVERE, "Could not save config to " + configurationFile, ex);
+            LicraftLog.consoleMessage(plugin, "Could not save config to " + dataConfigFile + ex);
+        }
+    }
+
+    public void saveDefaultDataConfig(){
+        if (!dataConfigFile.exists()){
+            plugin.saveResource(fileName,false);
         }
     }
 }
