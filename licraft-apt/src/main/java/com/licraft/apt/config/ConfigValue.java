@@ -17,4 +17,6 @@ public @interface ConfigValue {
 
 	char colorChar() default ' ';
 
+	boolean parentNode() default false;
+
 }

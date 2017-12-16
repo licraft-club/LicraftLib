@@ -18,6 +18,12 @@ import java.util.Set;
 
 public class ConfigAnnotations extends AnnotationsAbstract {
 
+    private AnnotationInterpreter interpreter;
+
+    public ConfigAnnotations() {
+        interpreter = AnnotationInterpreter.getInstance();
+    }
+
     /**
      * Load the plugin's configuration values into the class fields
      *
@@ -45,35 +51,18 @@ public class ConfigAnnotations extends AnnotationsAbstract {
      * @return
      */
     public ConfigAnnotations loadValues(JavaPlugin plugin, Object classToLoad) {
-        if (plugin == null) {
-            throw new IllegalArgumentException("plugin cannot be null");
-        }
-        if (classToLoad == null) {
-            throw new IllegalArgumentException("class cannot be null");
-        }
-
-        ConfigBean configBean = classToLoad.getClass().getAnnotation(ConfigBean.class);
-
-        if (configBean != null) {
-            String configFile = configBean.file();
-            FileConfiguration config;
-            if (configFile.equals("config.yml")){
-                config = plugin.getConfig();
-            }else {
-                DataConfigFile dataConfigFile = new DataConfigFile(plugin,configFile);
-                config = dataConfigFile.getDataConfig();
+        interpreter.onInterpreter(plugin, classToLoad, new AnnotationInterpreter.Result() {
+            @Override
+            public void onInterpreter(ConfigValue configValue, Field field, String parentPath, DataConfigFile configFile, Object target) {
+                decodeValueFromYml(configValue, field, parentPath, configFile, target);
             }
-            for (Field field : classToLoad.getClass().getDeclaredFields()) {
-                ConfigValue configValue = field.getAnnotation(ConfigValue.class);
-                ConfigSection configSection = field.getAnnotation(ConfigSection.class);
-                if (configValue != null) {
-                    decodeValueFromYml(configValue, field, null, config, classToLoad);
-                } else if (configSection != null) {
-                    decodeSectionFromYml(configSection, field, config, classToLoad);
-                }
-            }
-        }
 
+            @Override
+            public void onInterpreter(ConfigSection configSection, Field field, DataConfigFile configFile, Object target) {
+                decodeSectionFromYml(configSection, field, configFile, target);
+            }
+        });
+        interpreter.releaseConfigFile();
         return this;
     }
 
@@ -82,11 +71,12 @@ public class ConfigAnnotations extends AnnotationsAbstract {
      *
      * @param configSection
      * @param field
-     * @param config
+     * @param configFile
      * @param classToLoad
      */
-    private void decodeSectionFromYml(ConfigSection configSection, Field field,FileConfiguration config ,Object classToLoad) {
+    private void decodeSectionFromYml(ConfigSection configSection, Field field, DataConfigFile configFile, Object classToLoad) {
         Class<?> clazz = classToLoad.getClass();
+        FileConfiguration config = configFile.getConfig();
 
         if (field.getType() == List.class) {
             Type genericType = field.getGenericType();
@@ -98,12 +88,13 @@ public class ConfigAnnotations extends AnnotationsAbstract {
                     List sectionValue = new ArrayList<>();
                     ConfigurationSection section = config.getConfigurationSection(configSection.path());
                     Set<String> sectionKeySet = section.getKeys(false);
+
                     for (String key : sectionKeySet) {
                         Object genericObject = genericClazz.newInstance();
                         for (Field genericField : genericClazz.getDeclaredFields()) {
                             ConfigValue genericConfigValue = genericField.getAnnotation(ConfigValue.class);
                             if (genericConfigValue != null && config.contains(configSection.path())) {
-                                decodeValueFromYml(genericConfigValue, genericField, configSection.path() + "." + key, config, genericObject);
+                                decodeValueFromYml(genericConfigValue, genericField, configSection.path() + "." + key, configFile, genericObject);
                             }
                         }
                         sectionValue.add(genericObject);
@@ -123,16 +114,18 @@ public class ConfigAnnotations extends AnnotationsAbstract {
      *
      * @param configValue
      * @param field
-     * @param config
+     * @param configFile
      * @param classToLoad
      */
-    private void decodeValueFromYml(ConfigValue configValue, Field field, String parentPath,FileConfiguration config, Object classToLoad) {
+    private void decodeValueFromYml(ConfigValue configValue, Field field, String parentPath, DataConfigFile configFile, Object classToLoad) {
         Class<?> clazz = classToLoad.getClass();
+        boolean parentNode = configValue.parentNode();
         String path = parentPath == null ? configValue.path() : parentPath + "." + configValue.path();
+        FileConfiguration config = configFile.getConfig();
 
         try {
             field.setAccessible(true);
-            if (config.contains(path)) {
+            if (!parentNode && config.contains(path)) {
                 Object value = config.get(path);
                 if (configValue.colorChar() != ' ') {
                     if (value instanceof String) {
@@ -149,8 +142,9 @@ public class ConfigAnnotations extends AnnotationsAbstract {
                 }
                 field.set(classToLoad, value);
             } else if (!configValue.defaultsTo().isEmpty()) {
-                //TODO: Parse value type
                 field.set(classToLoad, configValue.defaultsTo());
+            } else if (parentNode) {
+                field.set(classToLoad, parentPath);
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to set config value for field '" + field.getName() + "' in " + clazz, e);
@@ -160,5 +154,89 @@ public class ConfigAnnotations extends AnnotationsAbstract {
     @Override
     public void load(JavaPlugin plugin, Object clazz) {
         loadValues(plugin, clazz);
+    }
+
+    /**
+     * save memory data to file
+     *
+     * @param plugin
+     * @param classesToSave
+     */
+    public void saveValues(JavaPlugin plugin, Object... classesToSave) {
+        if (plugin == null) {
+            throw new IllegalArgumentException("plugin cannot be null");
+        }
+        if (classesToSave.length == 0) {
+            throw new IllegalArgumentException("classes cannot be empty");
+        }
+        for (Object toSave : classesToSave) {
+            saveValue(plugin, toSave);
+        }
+    }
+
+    /**
+     * save memory data to file
+     *
+     * @param plugin
+     * @param classToSave
+     */
+    public void saveValue(JavaPlugin plugin, Object classToSave) {
+        interpreter.onInterpreter(plugin, classToSave, new AnnotationInterpreter.Result() {
+            @Override
+            public void onInterpreter(ConfigValue configValue, Field field, String parentPath, DataConfigFile configFile, Object target) {
+                encodeValueToYml(configValue, field, parentPath, configFile, target);
+            }
+
+            @Override
+            public void onInterpreter(ConfigSection configSection, Field field, DataConfigFile configFile, Object target) {
+                encodeSectionToYml(configSection, field, configFile, target);
+            }
+        });
+        interpreter.getConfigFile().saveConfig();
+        interpreter.releaseConfigFile();
+    }
+
+    public void encodeSectionToYml(ConfigSection configSection, Field field, DataConfigFile configFile, Object target) {
+        field.setAccessible(true);
+        String path = configSection.path();
+
+        try {
+            if (field.getType() == List.class) {
+                List sectionValue = (List) field.get(target);
+                for (Object value : sectionValue) {
+                    System.out.println("value = " + value);
+
+                    for (Field childFile : value.getClass().getDeclaredFields()) {
+                        ConfigValue configValue = childFile.getAnnotation(ConfigValue.class);
+                        if (configValue.parentNode()) {
+                            path = (String) childFile.get(value);
+                            break;
+                        }
+                    }
+
+                    for (Field childFile : value.getClass().getDeclaredFields()) {
+                        ConfigValue configValue = childFile.getAnnotation(ConfigValue.class);
+                        if (configValue != null && !configValue.parentNode()) {
+                            encodeValueToYml(configValue, childFile, path, configFile, value);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("The section value is invalid '" + field.getName() + "' in " + target.getClass() + e);
+        }
+    }
+
+    public void encodeValueToYml(ConfigValue configValue, Field field, String parentPath, DataConfigFile configFile, Object target) {
+        String path = parentPath == null ? configValue.path() : parentPath + "." + configValue.path();
+        System.out.println(path);
+        field.setAccessible(true);
+        try {
+            Object value = field.get(target);
+            configFile.getConfig().set(path, value);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Failed to get config value for field '"
+                    + field.getName() + "' in config object" + target.getClass(), e);
+        }
     }
 }

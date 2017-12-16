@@ -29,7 +29,7 @@ public class DataConfigFile {
         this.dataConfigFile = new File(plugin.getDataFolder(), fileName);
     }
 
-    public void reloadDataConfig() {
+    public void reloadConfig() {
         newDataConfig = YamlConfiguration.loadConfiguration(dataConfigFile);
 
         InputStream defInputStream = plugin.getResource(fileName);
@@ -58,25 +58,25 @@ public class DataConfigFile {
         }
     }
 
-    public FileConfiguration getDataConfig() {
+    public FileConfiguration getConfig() {
         if (newDataConfig == null) {
-            this.reloadDataConfig();
+            this.reloadConfig();
         }
         return newDataConfig;
     }
 
-    public void saveDataConfig() {
+    public void saveConfig() {
         if (newDataConfig == null || dataConfigFile == null) {
             return;
         }
         try {
-            getDataConfig().save(dataConfigFile);
+            getConfig().save(dataConfigFile);
         } catch (IOException ex) {
             LicraftLog.consoleMessage(plugin, "Could not save config to " + dataConfigFile + ex);
         }
     }
 
-    public void saveDefaultDataConfig(){
+    public void saveDefaultConfig(){
         if (!dataConfigFile.exists()){
             plugin.saveResource(fileName,false);
         }
