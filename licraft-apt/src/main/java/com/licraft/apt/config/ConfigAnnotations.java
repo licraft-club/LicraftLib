@@ -204,8 +204,6 @@ public class ConfigAnnotations extends AnnotationsAbstract {
             if (field.getType() == List.class) {
                 List sectionValue = (List) field.get(target);
                 for (Object value : sectionValue) {
-                    System.out.println("value = " + value);
-
                     for (Field childFile : value.getClass().getDeclaredFields()) {
                         ConfigValue configValue = childFile.getAnnotation(ConfigValue.class);
                         if (configValue.parentNode()) {
@@ -229,7 +227,6 @@ public class ConfigAnnotations extends AnnotationsAbstract {
 
     public void encodeValueToYml(ConfigValue configValue, Field field, String parentPath, DataConfigFile configFile, Object target) {
         String path = parentPath == null ? configValue.path() : parentPath + "." + configValue.path();
-        System.out.println(path);
         field.setAccessible(true);
         try {
             Object value = field.get(target);
