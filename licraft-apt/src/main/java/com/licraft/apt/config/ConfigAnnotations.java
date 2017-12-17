@@ -120,7 +120,9 @@ public class ConfigAnnotations extends AnnotationsAbstract {
     private void decodeValueFromYml(ConfigValue configValue, Field field, String parentPath, DataConfigFile configFile, Object classToLoad) {
         Class<?> clazz = classToLoad.getClass();
         boolean parentNode = configValue.parentNode();
-        String path = parentPath == null ? configValue.path() : parentPath + "." + configValue.path();
+        String childPath = configValue.path();
+        String path = parentPath == null ? configValue.path() : parentPath
+                + (childPath.equals("") ? "" : "." + configValue.path());
         FileConfiguration config = configFile.getConfig();
 
         try {
