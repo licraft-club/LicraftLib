@@ -1,6 +1,6 @@
 package com.licraft.apt.command;
 
-import com.licraft.apt.AccessUtil;
+import com.licraft.apt.utils.AccessUtil;
 import com.licraft.apt.command.exception.*;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;

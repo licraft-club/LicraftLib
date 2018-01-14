@@ -6,17 +6,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Target({
-				ElementType.METHOD,
-				ElementType.FIELD })
+        ElementType.METHOD,
+        ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ConfigValue {
 
-	String path();
+    String path() default "";
 
-	String defaultsTo() default "";
+    String defaultsTo() default "";
 
-	char colorChar() default ' ';
+    char colorChar() default ' ';
 
-	boolean parentNode() default false;
+    boolean valueKey() default false;
 
 }

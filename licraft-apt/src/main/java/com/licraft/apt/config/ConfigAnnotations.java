@@ -1,5 +1,6 @@
 package com.licraft.apt.config;
 
+import com.licraft.apt.utils.APTUtils;
 import com.licrafter.lib.config.DataConfigFile;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
@@ -119,7 +120,7 @@ public class ConfigAnnotations extends AnnotationsAbstract {
      */
     private void decodeValueFromYml(ConfigValue configValue, Field field, String parentPath, DataConfigFile configFile, Object classToLoad) {
         Class<?> clazz = classToLoad.getClass();
-        boolean parentNode = configValue.parentNode();
+        boolean parentNode = configValue.valueKey();
         String childPath = configValue.path();
         String path = parentPath == null ? configValue.path() : parentPath
                 + (childPath.equals("") ? "" : "." + configValue.path());
@@ -208,7 +209,7 @@ public class ConfigAnnotations extends AnnotationsAbstract {
                 for (Object value : sectionValue) {
                     for (Field childFile : value.getClass().getDeclaredFields()) {
                         ConfigValue configValue = childFile.getAnnotation(ConfigValue.class);
-                        if (configValue.parentNode()) {
+                        if (configValue.valueKey()) {
                             path = (String) childFile.get(value);
                             break;
                         }
@@ -216,8 +217,9 @@ public class ConfigAnnotations extends AnnotationsAbstract {
 
                     for (Field childFile : value.getClass().getDeclaredFields()) {
                         ConfigValue configValue = childFile.getAnnotation(ConfigValue.class);
-                        if (configValue != null && !configValue.parentNode()) {
-                            encodeValueToYml(configValue, childFile, path, configFile, value);
+                        if (configValue != null && !configValue.valueKey()) {
+                            Object fieldValue = childFile.get(value);
+                            encodeValueToYml(configValue, childFile, path, configFile, fieldValue);
                         }
                     }
                 }
@@ -228,14 +230,22 @@ public class ConfigAnnotations extends AnnotationsAbstract {
     }
 
     public void encodeValueToYml(ConfigValue configValue, Field field, String parentPath, DataConfigFile configFile, Object target) {
-        String path = parentPath == null ? configValue.path() : parentPath + "." + configValue.path();
+        String path = parentPath == null ? configValue.path() : parentPath + (configValue.path().equals("") ? "" : ("." + configValue.path()));
         field.setAccessible(true);
-        try {
-            Object value = field.get(target);
-            configFile.getConfig().set(path, value);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("Failed to get config value for field '"
-                    + field.getName() + "' in config object" + target.getClass(), e);
+
+        if (configValue.colorChar() != ' ') {
+            if (target instanceof String) {
+                target = APTUtils.encodeAlternateColorCodes(configValue.colorChar(), (String) target);
+            }
+            if (target instanceof List) {
+                for (ListIterator iterator = ((List) target).listIterator(); iterator.hasNext(); ) {
+                    Object next = iterator.next();
+                    if (next instanceof String) {
+                        iterator.set(APTUtils.encodeAlternateColorCodes(configValue.colorChar(), (String) next));
+                    }
+                }
+            }
         }
+        configFile.getConfig().set(path, target);
     }
 }

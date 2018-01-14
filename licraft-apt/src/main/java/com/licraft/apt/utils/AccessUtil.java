@@ -1,4 +1,4 @@
-package com.licraft.apt;
+package com.licraft.apt.utils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
