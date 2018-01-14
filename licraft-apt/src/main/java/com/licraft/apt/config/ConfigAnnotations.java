@@ -22,7 +22,7 @@ public class ConfigAnnotations extends AnnotationsAbstract {
     private AnnotationInterpreter interpreter;
 
     public ConfigAnnotations() {
-        interpreter = AnnotationInterpreter.getInstance();
+        interpreter = new AnnotationInterpreter();
     }
 
     /**
@@ -63,7 +63,6 @@ public class ConfigAnnotations extends AnnotationsAbstract {
                 decodeSectionFromYml(configSection, field, configFile, target);
             }
         });
-        interpreter.releaseConfigFile();
         return this;
     }
 
@@ -196,7 +195,6 @@ public class ConfigAnnotations extends AnnotationsAbstract {
             }
         });
         interpreter.getConfigFile().saveConfig();
-        interpreter.releaseConfigFile();
     }
 
     public void encodeSectionToYml(ConfigSection configSection, Field field, DataConfigFile configFile, Object target) {

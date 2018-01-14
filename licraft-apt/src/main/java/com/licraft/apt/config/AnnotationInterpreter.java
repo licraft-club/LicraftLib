@@ -12,15 +12,7 @@ import java.lang.reflect.Field;
  */
 public class AnnotationInterpreter {
 
-    private static AnnotationInterpreter instance;
     private DataConfigFile dataConfigFile;
-
-    public synchronized static AnnotationInterpreter getInstance() {
-        if (instance == null) {
-            instance = new AnnotationInterpreter();
-        }
-        return instance;
-    }
 
     public void onInterpreter(JavaPlugin plugin, Object target, Result decodeResult) {
         if (plugin == null) {
@@ -31,11 +23,24 @@ public class AnnotationInterpreter {
         }
 
         ConfigBean configBean = target.getClass().getAnnotation(ConfigBean.class);
+        String configPath = null;
+        if (configBean == null) {
+            for (Field field : target.getClass().getDeclaredFields()) {
+                configBean = field.getAnnotation(ConfigBean.class);
+                if (configBean != null) {
+                    try {
+                        configPath = (String) field.get(target);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException("Get config path failed! " + e);
+                    }
+                }
+            }
+        } else {
+            configPath = configBean.file();
+        }
 
-        if (configBean != null) {
-            String configFile = configBean.file();
-            dataConfigFile = new DataConfigFile(plugin, configFile);
-
+        if (configPath != null) {
+            dataConfigFile = new DataConfigFile(plugin, configPath);
             for (Field field : target.getClass().getDeclaredFields()) {
                 ConfigValue configValue = field.getAnnotation(ConfigValue.class);
                 ConfigSection configSection = field.getAnnotation(ConfigSection.class);
@@ -48,12 +53,8 @@ public class AnnotationInterpreter {
         }
     }
 
-    public DataConfigFile getConfigFile(){
+    public DataConfigFile getConfigFile() {
         return dataConfigFile;
-    }
-
-    public void releaseConfigFile(){
-        dataConfigFile = null;
     }
 
     /**
