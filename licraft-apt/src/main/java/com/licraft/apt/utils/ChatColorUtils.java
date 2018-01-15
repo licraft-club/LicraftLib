@@ -3,11 +3,11 @@ package com.licraft.apt.utils;
 import org.bukkit.ChatColor;
 
 /**
- * Created by shell on 2018/1/14.
+ * Created by shell on 2018/1/15.
  * <p>
  * Github: https://github.com/shellljx
  */
-public class APTUtils {
+public class ChatColorUtils {
 
     /**
      * @param altColorChar

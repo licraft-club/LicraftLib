@@ -5,3 +5,4 @@ author: shell
 website: http://mc.licrafter.com
 description: base lib plugin
 depend: []
+softdepend: [Vault]

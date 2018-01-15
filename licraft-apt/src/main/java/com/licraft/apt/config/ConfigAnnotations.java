@@ -1,6 +1,6 @@
 package com.licraft.apt.config;
 
-import com.licraft.apt.utils.APTUtils;
+import com.licraft.apt.utils.ChatColorUtils;
 import com.licrafter.lib.config.DataConfigFile;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
@@ -233,13 +233,13 @@ public class ConfigAnnotations extends AnnotationsAbstract {
 
         if (configValue.colorChar() != ' ') {
             if (target instanceof String) {
-                target = APTUtils.encodeAlternateColorCodes(configValue.colorChar(), (String) target);
+                target = ChatColorUtils.encodeAlternateColorCodes(configValue.colorChar(), (String) target);
             }
             if (target instanceof List) {
                 for (ListIterator iterator = ((List) target).listIterator(); iterator.hasNext(); ) {
                     Object next = iterator.next();
                     if (next instanceof String) {
-                        iterator.set(APTUtils.encodeAlternateColorCodes(configValue.colorChar(), (String) next));
+                        iterator.set(ChatColorUtils.encodeAlternateColorCodes(configValue.colorChar(), (String) next));
                     }
                 }
             }
