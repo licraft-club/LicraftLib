@@ -1,249 +1,73 @@
 package com.licraft.apt.config;
 
-import com.licraft.apt.utils.ChatColorUtils;
 import com.licrafter.lib.config.DataConfigFile;
-import org.bukkit.ChatColor;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.plugin.Plugin;
-import com.licraft.apt.AnnotationsAbstract;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Set;
-
-public class ConfigAnnotations extends AnnotationsAbstract {
-
-    private AnnotationInterpreter interpreter;
-
-    public ConfigAnnotations() {
-        interpreter = new AnnotationInterpreter();
-    }
+/**
+ * Created by shell on 2018/1/23.
+ * <p>
+ * Github: https://github.com/shellljx
+ */
+public class ConfigAnnotations {
 
     /**
-     * Load the plugin's configuration values into the class fields
-     *
-     * @param plugin        {@link Plugin} to load the configuration form
-     * @param classesToLoad Array of classes to set the fields in
-     */
-    public ConfigAnnotations loadValues(JavaPlugin plugin, Object... classesToLoad) {
-        if (plugin == null) {
-            throw new IllegalArgumentException("plugin cannot be null");
-        }
-        if (classesToLoad.length == 0) {
-            throw new IllegalArgumentException("classes cannot be empty");
-        }
-        for (Object toLoad : classesToLoad) {
-            loadValues(plugin, toLoad);
-        }
-        return this;
-    }
-
-    /**
-     * Load the plugin's configuration values into the class fields
+     * load config
      *
      * @param plugin
      * @param classToLoad
+     * @param <T>
      * @return
      */
-    public ConfigAnnotations loadValues(JavaPlugin plugin, Object classToLoad) {
-        interpreter.onInterpreter(plugin, classToLoad, new AnnotationInterpreter.Result() {
-            @Override
-            public void onInterpreter(ConfigValue configValue, Field field, String parentPath, DataConfigFile configFile, Object target) {
-                decodeValueFromYml(configValue, field, parentPath, configFile, target);
-            }
-
-            @Override
-            public void onInterpreter(ConfigSection configSection, Field field, DataConfigFile configFile, Object target) {
-                decodeSectionFromYml(configSection, field, configFile, target);
-            }
-        });
-        return this;
+    public <T> T loadValues(JavaPlugin plugin, Class<T> classToLoad) {
+        return loadValues(plugin, null, classToLoad);
     }
 
     /**
-     * Decode configSection
-     *
-     * @param configSection
-     * @param field
-     * @param configFile
-     * @param classToLoad
-     */
-    private void decodeSectionFromYml(ConfigSection configSection, Field field, DataConfigFile configFile, Object classToLoad) {
-        Class<?> clazz = classToLoad.getClass();
-        FileConfiguration config = configFile.getConfig();
-
-        if (field.getType() == List.class) {
-            Type genericType = field.getGenericType();
-            if (genericType != null && genericType instanceof ParameterizedType) {
-                ParameterizedType pt = (ParameterizedType) genericType;
-                Class<?> genericClazz = (Class<?>) pt.getActualTypeArguments()[0];
-                field.setAccessible(true);
-                try {
-                    List sectionValue = new ArrayList<>();
-                    ConfigurationSection section = config.getConfigurationSection(configSection.path());
-                    Set<String> sectionKeySet = section.getKeys(false);
-
-                    for (String key : sectionKeySet) {
-                        Object genericObject = genericClazz.newInstance();
-                        for (Field genericField : genericClazz.getDeclaredFields()) {
-                            ConfigValue genericConfigValue = genericField.getAnnotation(ConfigValue.class);
-                            if (genericConfigValue != null && config.contains(configSection.path())) {
-                                decodeValueFromYml(genericConfigValue, genericField, configSection.path() + "." + key, configFile, genericObject);
-                            }
-                        }
-                        sectionValue.add(genericObject);
-                    }
-                    field.set(classToLoad, sectionValue);
-                } catch (Exception e) {
-                    throw new RuntimeException("Fiald get field new Instance of '" + genericClazz.getName() + "' in " + clazz + "\n" + e);
-                }
-            } else {
-                throw new RuntimeException("The list genericType is invalid '" + field.getName() + "' in " + clazz);
-            }
-        }
-    }
-
-    /**
-     * Decode field value from configSection
-     *
-     * @param configValue
-     * @param field
-     * @param configFile
-     * @param classToLoad
-     */
-    private void decodeValueFromYml(ConfigValue configValue, Field field, String parentPath, DataConfigFile configFile, Object classToLoad) {
-        Class<?> clazz = classToLoad.getClass();
-        boolean parentNode = configValue.valueKey();
-        String childPath = configValue.path();
-        String path = parentPath == null ? configValue.path() : parentPath
-                + (childPath.equals("") ? "" : "." + configValue.path());
-        FileConfiguration config = configFile.getConfig();
-
-        try {
-            field.setAccessible(true);
-            if (!parentNode && config.contains(path)) {
-                Object value = config.get(path);
-                if (configValue.colorChar() != ' ') {
-                    if (value instanceof String) {
-                        value = ChatColor.translateAlternateColorCodes(configValue.colorChar(), (String) value);
-                    }
-                    if (value instanceof List) {
-                        for (ListIterator iterator = ((List) value).listIterator(); iterator.hasNext(); ) {
-                            Object next = iterator.next();
-                            if (next instanceof String) {
-                                iterator.set(ChatColor.translateAlternateColorCodes(configValue.colorChar(), (String) next));
-                            }
-                        }
-                    }
-                }
-                field.set(classToLoad, value);
-            } else if (!configValue.defaultsTo().isEmpty()) {
-                field.set(classToLoad, configValue.defaultsTo());
-            } else if (parentNode) {
-                field.set(classToLoad, parentPath);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to set config value for field '" + field.getName() + "' in " + clazz, e);
-        }
-    }
-
-    @Override
-    public void load(JavaPlugin plugin, Object clazz) {
-        loadValues(plugin, clazz);
-    }
-
-    /**
-     * save memory data to file
+     * load config
      *
      * @param plugin
-     * @param classesToSave
+     * @param configFilePath
+     * @param classToLoad
+     * @param <T>
+     * @return
      */
-    public void saveValues(JavaPlugin plugin, Object... classesToSave) {
-        if (plugin == null) {
-            throw new IllegalArgumentException("plugin cannot be null");
-        }
-        if (classesToSave.length == 0) {
-            throw new IllegalArgumentException("classes cannot be empty");
-        }
-        for (Object toSave : classesToSave) {
-            saveValue(plugin, toSave);
-        }
+    public <T> T loadValues(JavaPlugin plugin, String configFilePath, Class<T> classToLoad) {
+        AnnotationInterpreter interpreter = new BeanInterpreter();
+        return interpreter.decodeFromYml(initConfig(plugin, configFilePath, classToLoad).getConfig(), classToLoad);
     }
 
     /**
-     * save memory data to file
+     * save object to config
      *
      * @param plugin
-     * @param classToSave
+     * @param targetToSave
      */
-    public void saveValue(JavaPlugin plugin, Object classToSave) {
-        interpreter.onInterpreter(plugin, classToSave, new AnnotationInterpreter.Result() {
-            @Override
-            public void onInterpreter(ConfigValue configValue, Field field, String parentPath, DataConfigFile configFile, Object target) {
-                encodeValueToYml(configValue, field, parentPath, configFile, target);
-            }
-
-            @Override
-            public void onInterpreter(ConfigSection configSection, Field field, DataConfigFile configFile, Object target) {
-                encodeSectionToYml(configSection, field, configFile, target);
-            }
-        });
-        interpreter.getConfigFile().saveConfig();
+    public void saveValues(JavaPlugin plugin, Object targetToSave) {
+        saveValues(plugin, null, targetToSave);
     }
 
-    public void encodeSectionToYml(ConfigSection configSection, Field field, DataConfigFile configFile, Object target) {
-        field.setAccessible(true);
-        String path = configSection.path();
-
-        try {
-            if (field.getType() == List.class) {
-                List sectionValue = (List) field.get(target);
-                for (Object value : sectionValue) {
-                    for (Field childFile : value.getClass().getDeclaredFields()) {
-                        ConfigValue configValue = childFile.getAnnotation(ConfigValue.class);
-                        if (configValue.valueKey()) {
-                            path = (String) childFile.get(value);
-                            break;
-                        }
-                    }
-
-                    for (Field childFile : value.getClass().getDeclaredFields()) {
-                        ConfigValue configValue = childFile.getAnnotation(ConfigValue.class);
-                        if (configValue != null && !configValue.valueKey()) {
-                            Object fieldValue = childFile.get(value);
-                            encodeValueToYml(configValue, childFile, path, configFile, fieldValue);
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("The section value is invalid '" + field.getName() + "' in " + target.getClass() + e);
-        }
+    /**
+     * save object to config
+     *
+     * @param plugin
+     * @param configFilePath
+     * @param targetTosave
+     */
+    public void saveValues(JavaPlugin plugin, String configFilePath, Object targetTosave) {
+        AnnotationInterpreter interpreter = new BeanInterpreter();
+        DataConfigFile configuration = initConfig(plugin,configFilePath,targetTosave.getClass());
+        interpreter.encodeToYml(configuration.getConfig(),targetTosave);
+        configuration.saveConfig();
     }
 
-    public void encodeValueToYml(ConfigValue configValue, Field field, String parentPath, DataConfigFile configFile, Object target) {
-        String path = parentPath == null ? configValue.path() : parentPath + (configValue.path().equals("") ? "" : ("." + configValue.path()));
-        field.setAccessible(true);
-
-        if (configValue.colorChar() != ' ') {
-            if (target instanceof String) {
-                target = ChatColorUtils.encodeAlternateColorCodes(configValue.colorChar(), (String) target);
-            }
-            if (target instanceof List) {
-                for (ListIterator iterator = ((List) target).listIterator(); iterator.hasNext(); ) {
-                    Object next = iterator.next();
-                    if (next instanceof String) {
-                        iterator.set(ChatColorUtils.encodeAlternateColorCodes(configValue.colorChar(), (String) next));
-                    }
-                }
-            }
+    private <T> DataConfigFile initConfig(JavaPlugin plugin, String configFilePath, Class<T> classz) {
+        String configFileName;
+        if (configFilePath != null) {
+            configFileName = configFilePath;
+        } else {
+            ConfigBean configBean = classz.getAnnotation(ConfigBean.class);
+            configFileName = configBean.file();
         }
-        configFile.getConfig().set(path, target);
+        return new DataConfigFile(plugin, configFileName);
     }
 }

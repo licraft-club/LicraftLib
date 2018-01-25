@@ -1,6 +1,6 @@
 package com.licraft.apt.command;
 
-import com.licraft.apt.utils.AccessUtil;
+import com.licraft.apt.utils.AnnotationUtil;
 import com.licraft.apt.command.exception.*;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
@@ -380,7 +380,7 @@ public class AnnotatedCommand {
 	private CommandMap getCommandMap() {
 		if (commandMap == null) {
 			try {
-				commandMap = (CommandMap) AccessUtil.setAccessible(Bukkit.getServer().getClass().getDeclaredField("commandMap")).get(Bukkit.getServer());
+				commandMap = (CommandMap) AnnotationUtil.setAccessible(Bukkit.getServer().getClass().getDeclaredField("commandMap")).get(Bukkit.getServer());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

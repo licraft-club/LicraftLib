@@ -118,7 +118,7 @@ public class ValueAdapter implements EconomyInterface, PermissionsInterface {
     }
 
     @Override
-    public String getPlayerGroup(String player, String world) {
+    public String getPlayerGroup(OfflinePlayer player, String world) {
         String group = permissions.getPrimaryGroup(world, player);
         if (group == null) {
             return group;

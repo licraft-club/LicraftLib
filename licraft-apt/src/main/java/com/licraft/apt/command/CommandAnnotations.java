@@ -1,14 +1,13 @@
 package com.licraft.apt.command;
 
 import org.bukkit.plugin.Plugin;
-import com.licraft.apt.AnnotationsAbstract;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 
-public class CommandAnnotations extends AnnotationsAbstract {
+public class CommandAnnotations {
 
 	public Set<AnnotatedCommand> registerCommands(Plugin plugin, Object classToRegister) {
 		Class<?> clazz = classToRegister.getClass();
@@ -43,7 +42,6 @@ public class CommandAnnotations extends AnnotationsAbstract {
 		return registeredCommands;
 	}
 
-	@Override
 	public void load(JavaPlugin plugin, Object clazz) {
 		registerCommands(plugin, clazz);
 	}

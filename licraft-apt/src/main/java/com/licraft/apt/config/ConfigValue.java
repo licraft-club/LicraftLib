@@ -14,7 +14,4 @@ public @interface ConfigValue {
     String defaultsTo() default "";
 
     char colorChar() default ' ';
-
-    boolean valueKey() default false;
-
 }
