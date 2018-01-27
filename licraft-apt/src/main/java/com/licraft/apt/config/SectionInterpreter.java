@@ -48,7 +48,7 @@ public class SectionInterpreter implements AnnotationInterpreter {
                 }
             } else if (!AnnotationUtil.isBaseType(targetClass)) {
                 AnnotationInterpreter interpreter = new BeanInterpreter();
-                Object value = interpreter.decodeFromYml(configuration.getConfigurationSection(annotation.path()), targetClass);
+                Object value = interpreter.decodeFromYml(configuration, targetClass);
                 if (value != null) {
                     return (T) value;
                 }
@@ -76,7 +76,7 @@ public class SectionInterpreter implements AnnotationInterpreter {
             }
         } else if (!AnnotationUtil.isBaseType(target.getClass())) {
             AnnotationInterpreter interpreter = new BeanInterpreter();
-            interpreter.encodeToYml(configuration.getConfigurationSection(annotation.path()), target);
+            interpreter.encodeToYml(configuration, target);
         }
     }
 

@@ -17,6 +17,7 @@ public class BeanInterpreter implements AnnotationInterpreter {
         try {
             T target = targetClass.newInstance();
             for (Field field : targetClass.getDeclaredFields()) {
+                field.setAccessible(true);
                 AnnotationInterpreter interpreter = getInterpreter(field);
                 if (interpreter == null) {
                     continue;
@@ -30,7 +31,7 @@ public class BeanInterpreter implements AnnotationInterpreter {
             }
             return target;
         } catch (Exception e) {
-            throw new RuntimeException("BeanInterpreter decode config bean " + targetClass.getName() + "error " + e);
+            throw new RuntimeException("BeanInterpreter decode config bean " + targetClass.getName() + " error " + e);
         }
     }
 
@@ -39,6 +40,7 @@ public class BeanInterpreter implements AnnotationInterpreter {
         Class targetClass = target.getClass();
         try {
             for (Field field : targetClass.getDeclaredFields()) {
+                field.setAccessible(true);
                 AnnotationInterpreter interpreter = getInterpreter(field);
                 if (interpreter == null) {
                     continue;
@@ -52,7 +54,6 @@ public class BeanInterpreter implements AnnotationInterpreter {
     }
 
     private AnnotationInterpreter getInterpreter(Field field) {
-        field.setAccessible(true);
         ConfigValue configValue = field.getAnnotation(ConfigValue.class);
         ConfigSection configSection = field.getAnnotation(ConfigSection.class);
         if (configValue != null) {

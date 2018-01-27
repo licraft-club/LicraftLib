@@ -63,7 +63,7 @@ public class ValueInterpreter implements AnnotationInterpreter {
             Class<?> valueClass = (Class<?>) pt.getActualTypeArguments()[1];
             if (AnnotationUtil.isBaseType(valueClass)) {
                 for (String key : map.keySet()) {
-                    encodeToYml(configuration.getConfigurationSection(annotation.path()), key);
+                    saveSimpleValue(configuration, map.get(key), key);
                 }
             }
         }
@@ -82,8 +82,8 @@ public class ValueInterpreter implements AnnotationInterpreter {
                     }
                 }
             }
-            configuration.set(getValuePath(key), target);
         }
+        configuration.set(getValuePath(key), target);
     }
 
     private <T> T decodeMapValue(ConfigurationSection configuration) {
