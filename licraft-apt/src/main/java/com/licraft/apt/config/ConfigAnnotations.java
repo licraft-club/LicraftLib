@@ -57,7 +57,7 @@ public class ConfigAnnotations {
         AnnotationInterpreter interpreter = new BeanInterpreter();
         DataConfigFile configuration = initConfig(plugin,configFilePath,targetTosave.getClass());
         interpreter.encodeToYml(configuration.getConfig(),targetTosave);
-        configuration.saveConfig();
+        configuration.saveDefaultConfig();
     }
 
     private <T> DataConfigFile initConfig(JavaPlugin plugin, String configFilePath, Class<T> classz) {

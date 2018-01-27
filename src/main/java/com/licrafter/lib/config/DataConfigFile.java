@@ -45,7 +45,7 @@ public class DataConfigFile {
             try {
                 defInputStream.close();
             } catch (IOException e) {
-                LicraftLog.consoleMessage(plugin, "Faild close DataConfigFile inputStream!");
+                LicraftLog.consoleMessage(plugin.getName(), "Faild close DataConfigFile inputStream!");
             }
         }
 
@@ -53,7 +53,7 @@ public class DataConfigFile {
             try {
                 streamReader.close();
             } catch (IOException e) {
-                LicraftLog.consoleMessage(plugin, "Faild close DataConfigFile streamReader!");
+                LicraftLog.consoleMessage(plugin.getName(), "Faild close DataConfigFile streamReader!");
             }
         }
     }
@@ -72,7 +72,7 @@ public class DataConfigFile {
         try {
             getConfig().save(dataConfigFile);
         } catch (IOException ex) {
-            LicraftLog.consoleMessage(plugin, "Could not save config to " + dataConfigFile + ex);
+            LicraftLog.consoleMessage(plugin.getName(), "Could not save config to " + dataConfigFile + ex);
         }
     }
 

@@ -26,7 +26,7 @@ public class LicraftConfigUtils {
         }
         if (!new File(dataFolder, configPath).isFile()) {
             if (writeDefaultFileFromJar(plugin, new File(plugin.getDataFolder(), configPath), configPath, true)) {
-                LicraftLog.consoleMessage(plugin, "Wrote default config...");
+                LicraftLog.consoleMessage(plugin.getName(), "Wrote default config...");
             }
         }
     }
@@ -76,7 +76,7 @@ public class LicraftConfigUtils {
             }
             return false;
         } catch (Exception ex) {
-            LicraftLog.consoleMessage(plugin, "Failed to write file: " + writeName);
+            LicraftLog.consoleMessage(plugin.getName(), "Failed to write file: " + writeName);
             return false;
         }
     }

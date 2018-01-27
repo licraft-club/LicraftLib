@@ -7,4 +7,6 @@ public interface PermissionsInterface {
     public String getPlayerGroup(Player player);
 
     public String getPlayerGroup(OfflinePlayer player, String world);
+
+    public void playerAdd(String world, OfflinePlayer player, String permission);
 }

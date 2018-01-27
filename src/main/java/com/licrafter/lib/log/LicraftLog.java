@@ -20,23 +20,23 @@ public class LicraftLog {
                         + " Authors:[" + String.join(",", plugin.getDescription().getAuthors())
                         + "])"
                         + " WebSite:" + plugin.getDescription().getWebsite();
-        consoleMessage(plugin, enableInfo);
+        consoleMessage(plugin.getName(), enableInfo);
     }
 
     public static void printDisableInfo(JavaPlugin plugin) {
         String disableInfo = "The plugin " + plugin.getName() + " is Disabled,Thanks for your using!";
-        consoleMessage(plugin, disableInfo);
+        consoleMessage(plugin.getName(), disableInfo);
     }
 
-    public static void consoleMessage(JavaPlugin plugin, String message) {
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', getLogPrefix(plugin) + " " + message));
+    public static void consoleMessage(String sender, String message) {
+        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', getLogPrefix(sender) + " " + message));
     }
 
     public static void consoleMessage(String message){
         Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',"[LicraftLib]" + " " + message));
     }
 
-    public static String getLogPrefix(JavaPlugin plugin) {
-        return ChatColor.GREEN + "[" + ChatColor.GOLD + plugin.getName() + ChatColor.GREEN + "]" + ChatColor.GRAY;
+    public static String getLogPrefix(String senter) {
+        return ChatColor.GREEN + "[" + ChatColor.GOLD + senter + ChatColor.GREEN + "]" + ChatColor.GRAY;
     }
 }

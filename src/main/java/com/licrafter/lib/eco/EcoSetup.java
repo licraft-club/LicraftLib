@@ -11,17 +11,17 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class EcoSetup {
 
     public static EconomyInterface onEnable(JavaPlugin plugin) {
-        LicraftLog.consoleMessage(plugin, "Scanning for economy systems...");
+        LicraftLog.consoleMessage(plugin.getName(), "Scanning for economy systems...");
         EconomyInterface economy = null;
 
         ValueAdapter vault = new ValueAdapter(plugin.getServer());
         if (vault.economyOK()) {
             economy = vault;
-            LicraftLog.consoleMessage(plugin, " Found Vault using economy system: " + vault.getName());
+            LicraftLog.consoleMessage(plugin.getName(), " Found Vault using economy system: " + vault.getName());
         }
         if (economy == null) {
             economy = new BlackHoleEconomy();
-            LicraftLog.consoleMessage(plugin, " Unable to find an economy system...");
+            LicraftLog.consoleMessage(plugin.getName(), " Unable to find an economy system...");
         }
         return economy;
     }

@@ -125,4 +125,9 @@ public class ValueAdapter implements EconomyInterface, PermissionsInterface {
         }
         return group.toLowerCase();
     }
+
+    @Override
+    public void playerAdd(String world, OfflinePlayer player, String permission) {
+        permissions.playerAdd(world,player,permission);
+    }
 }
