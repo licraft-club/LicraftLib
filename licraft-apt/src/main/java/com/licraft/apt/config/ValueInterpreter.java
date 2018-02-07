@@ -4,6 +4,8 @@ import com.licraft.apt.utils.AnnotationUtil;
 import com.licraft.apt.utils.ChatColorUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -105,21 +107,27 @@ public class ValueInterpreter implements AnnotationInterpreter {
 
     private <T> T decodeSimpleValue(ConfigurationSection configuration, String key) {
         if (configuration.contains(annotation.path())) {
-            Object value = configuration.get(getValuePath(key));
-            if (annotation.colorChar() != ' ') {
-                if (value instanceof String) {
-                    value = ChatColor.translateAlternateColorCodes(annotation.colorChar(), (String) value);
-                }
-                if (value instanceof List) {
-                    for (ListIterator iterator = ((List) value).listIterator(); iterator.hasNext(); ) {
-                        Object next = iterator.next();
-                        if (next instanceof String) {
-                            iterator.set(ChatColor.translateAlternateColorCodes(annotation.colorChar(), (String) next));
+            if (field.getType() == ItemStack.class) {
+                return (T) configuration.getItemStack(getValuePath(key));
+            } else if (field.getType() == Vector.class) {
+                return (T) configuration.getVector(getValuePath(key));
+            } else {
+                Object value = configuration.get(getValuePath(key));
+                if (annotation.colorChar() != ' ') {
+                    if (value instanceof String) {
+                        value = ChatColor.translateAlternateColorCodes(annotation.colorChar(), (String) value);
+                    }
+                    if (value instanceof List) {
+                        for (ListIterator iterator = ((List) value).listIterator(); iterator.hasNext(); ) {
+                            Object next = iterator.next();
+                            if (next instanceof String) {
+                                iterator.set(ChatColor.translateAlternateColorCodes(annotation.colorChar(), (String) next));
+                            }
                         }
                     }
                 }
+                return (T) value;
             }
-            return (T) value;
         } else if (!annotation.defaultsTo().isEmpty()) {
             return (T) annotation.defaultsTo();
         }
