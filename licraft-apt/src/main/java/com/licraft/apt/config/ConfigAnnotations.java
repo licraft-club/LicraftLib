@@ -1,6 +1,6 @@
 package com.licraft.apt.config;
 
-import com.licrafter.lib.config.DataConfigFile;
+import com.licraft.apt.utils.DataConfigFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**

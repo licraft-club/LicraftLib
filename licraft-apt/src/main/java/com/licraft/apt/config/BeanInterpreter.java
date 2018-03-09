@@ -23,6 +23,9 @@ public class BeanInterpreter implements AnnotationInterpreter {
                     continue;
                 }
                 ConfigurationSection fieldConfiguration = getFieldConfiguration(interpreter, configuration);
+                if (fieldConfiguration==null){
+                    continue;
+                }
                 Object fieldValue = interpreter.decodeFromYml(fieldConfiguration, field.getType());
                 if (fieldValue == null) {
                     continue;

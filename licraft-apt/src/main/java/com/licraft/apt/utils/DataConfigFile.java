@@ -1,4 +1,4 @@
-package com.licrafter.lib.config;
+package com.licraft.apt.utils;
 
 import com.google.common.base.Charsets;
 import com.licrafter.lib.log.LicraftLog;
