@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -67,6 +68,12 @@ public class SectionInterpreter implements AnnotationInterpreter {
             if (genericType != null && genericType instanceof ParameterizedType) {
                 ParameterizedType pt = (ParameterizedType) genericType;
                 Class<?> valueClass = (Class<?>) pt.getActualTypeArguments()[1];
+                Set<String> removeKeyset = new HashSet<>();
+                removeKeyset.addAll(configuration.getKeys(false));
+                removeKeyset.removeAll(map.keySet());
+                for (String key : removeKeyset) {
+                    configuration.set(key, null);
+                }
                 if (!AnnotationUtil.isBaseType(valueClass)) {
                     for (String key : map.keySet()) {
                         AnnotationInterpreter interpreter = new BeanInterpreter();

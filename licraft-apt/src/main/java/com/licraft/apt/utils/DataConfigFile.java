@@ -41,20 +41,16 @@ public class DataConfigFile {
 
         newDataConfig.setDefaults(YamlConfiguration.loadConfiguration(streamReader));
 
-        if (defInputStream != null) {
-            try {
-                defInputStream.close();
-            } catch (IOException e) {
-                LicraftLog.consoleMessage(plugin.getName(), "Faild close DataConfigFile inputStream!");
-            }
+        try {
+            defInputStream.close();
+        } catch (IOException e) {
+            LicraftLog.consoleMessage(plugin.getName(), "Faild close DataConfigFile inputStream!");
         }
 
-        if (streamReader != null) {
-            try {
-                streamReader.close();
-            } catch (IOException e) {
-                LicraftLog.consoleMessage(plugin.getName(), "Faild close DataConfigFile streamReader!");
-            }
+        try {
+            streamReader.close();
+        } catch (IOException e) {
+            LicraftLog.consoleMessage(plugin.getName(), "Faild close DataConfigFile streamReader!");
         }
     }
 
@@ -76,9 +72,9 @@ public class DataConfigFile {
         }
     }
 
-    public void saveDefaultConfig(){
-        if (!dataConfigFile.exists()){
-            plugin.saveResource(fileName,false);
+    public void saveDefaultConfig() {
+        if (!dataConfigFile.exists()) {
+            plugin.saveResource(fileName, false);
         }
     }
 }

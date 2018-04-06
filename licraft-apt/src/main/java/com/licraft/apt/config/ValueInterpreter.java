@@ -63,6 +63,12 @@ public class ValueInterpreter implements AnnotationInterpreter {
         if (genericType != null && genericType instanceof ParameterizedType) {
             ParameterizedType pt = (ParameterizedType) genericType;
             Class<?> valueClass = (Class<?>) pt.getActualTypeArguments()[1];
+            Set<String> removeSet = new HashSet<>();
+            removeSet.addAll(configuration.getConfigurationSection(annotation.path()).getKeys(false));
+            removeSet.removeAll(map.keySet());
+            for (String key : removeSet) {
+                saveSimpleValue(configuration, null, key);
+            }
             if (AnnotationUtil.isBaseType(valueClass)) {
                 for (String key : map.keySet()) {
                     saveSimpleValue(configuration, map.get(key), key);
