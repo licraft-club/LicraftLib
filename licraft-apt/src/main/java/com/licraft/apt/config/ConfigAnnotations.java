@@ -43,6 +43,9 @@ public class ConfigAnnotations {
      * @param targetToSave
      */
     public void saveValues(JavaPlugin plugin, Object targetToSave) {
+        if (targetToSave == null) {
+            return;
+        }
         saveValues(plugin, null, targetToSave);
     }
 
@@ -55,8 +58,8 @@ public class ConfigAnnotations {
      */
     public void saveValues(JavaPlugin plugin, String configFilePath, Object targetTosave) {
         AnnotationInterpreter interpreter = new BeanInterpreter();
-        DataConfigFile configuration = initConfig(plugin,configFilePath,targetTosave.getClass());
-        interpreter.encodeToYml(configuration.getConfig(),targetTosave);
+        DataConfigFile configuration = initConfig(plugin, configFilePath, targetTosave.getClass());
+        interpreter.encodeToYml(configuration.getConfig(), targetTosave);
         configuration.saveConfig();
     }
 

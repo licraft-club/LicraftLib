@@ -23,7 +23,7 @@ public class BeanInterpreter implements AnnotationInterpreter {
                     continue;
                 }
                 ConfigurationSection fieldConfiguration = getFieldConfiguration(interpreter, configuration);
-                if (fieldConfiguration==null){
+                if (fieldConfiguration == null) {
                     continue;
                 }
                 Object fieldValue = interpreter.decodeFromYml(fieldConfiguration, field.getType());
@@ -71,7 +71,9 @@ public class BeanInterpreter implements AnnotationInterpreter {
         if (interpreter instanceof ValueInterpreter) {
             return configuration;
         } else if (interpreter instanceof SectionInterpreter) {
-            return configuration.getConfigurationSection(((SectionInterpreter) interpreter).getAnnotation().path());
+            String path = ((SectionInterpreter) interpreter).getAnnotation().path();
+            configuration.createSection(path);
+            return configuration.getConfigurationSection(path);
         }
         return null;
     }
