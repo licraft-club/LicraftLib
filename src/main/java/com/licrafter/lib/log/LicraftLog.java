@@ -36,7 +36,7 @@ public class LicraftLog {
         Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',"[LicraftLib]" + " " + message));
     }
 
-    public static String getLogPrefix(String senter) {
-        return ChatColor.GREEN + "[" + ChatColor.GOLD + senter + ChatColor.GREEN + "]" + ChatColor.GRAY;
+    public static String getLogPrefix(String sender) {
+        return ChatColor.GREEN + "[" + ChatColor.GOLD + sender + ChatColor.GREEN + "]" + ChatColor.GRAY;
     }
 }

@@ -77,6 +77,9 @@ public class SectionInterpreter implements AnnotationInterpreter {
                 if (!AnnotationUtil.isBaseType(valueClass)) {
                     for (String key : map.keySet()) {
                         AnnotationInterpreter interpreter = new BeanInterpreter();
+                        if (!configuration.contains(key)){
+                            configuration.createSection(key);
+                        }
                         interpreter.encodeToYml(configuration.getConfigurationSection(key), map.get(key));
                     }
                 }

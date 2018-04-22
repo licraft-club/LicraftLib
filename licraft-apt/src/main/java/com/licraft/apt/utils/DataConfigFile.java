@@ -1,7 +1,6 @@
 package com.licraft.apt.utils;
 
 import com.google.common.base.Charsets;
-import com.licrafter.lib.log.LicraftLog;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -10,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.logging.Level;
 
 /**
  * Created by shell on 2017/12/2.
@@ -44,13 +44,13 @@ public class DataConfigFile {
         try {
             defInputStream.close();
         } catch (IOException e) {
-            LicraftLog.consoleMessage(plugin.getName(), "Faild close DataConfigFile inputStream!");
+            plugin.getLogger().log(Level.INFO, plugin.getName(), "Faild close DataConfigFile inputStream!");
         }
 
         try {
             streamReader.close();
         } catch (IOException e) {
-            LicraftLog.consoleMessage(plugin.getName(), "Faild close DataConfigFile streamReader!");
+            plugin.getLogger().log(Level.INFO, plugin.getName(), "Faild close DataConfigFile streamReader!");
         }
     }
 
@@ -68,7 +68,7 @@ public class DataConfigFile {
         try {
             getConfig().save(dataConfigFile);
         } catch (IOException ex) {
-            LicraftLog.consoleMessage(plugin.getName(), "Could not save config to " + dataConfigFile + ex);
+            plugin.getLogger().log(Level.INFO, plugin.getName(), "Could not save config to " + dataConfigFile + ex);
         }
     }
 

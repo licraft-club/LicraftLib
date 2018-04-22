@@ -72,7 +72,9 @@ public class BeanInterpreter implements AnnotationInterpreter {
             return configuration;
         } else if (interpreter instanceof SectionInterpreter) {
             String path = ((SectionInterpreter) interpreter).getAnnotation().path();
-            configuration.createSection(path);
+            if (!configuration.contains(path)) {
+                configuration.createSection(path);
+            }
             return configuration.getConfigurationSection(path);
         }
         return null;
