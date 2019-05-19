@@ -1,6 +1,6 @@
 package com.licraft.apt.config;
 
-import com.licraft.apt.utils.DataConfigFile;
+import com.licraft.apt.utils.YmlMaker;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -8,7 +8,13 @@ import org.bukkit.plugin.java.JavaPlugin;
  * <p>
  * Github: https://github.com/shellljx
  */
-public class ConfigAnnotations {
+public class ParserAPI {
+
+    private static ParserAPI INSTANCE = new ParserAPI();
+
+    public static ParserAPI instance() {
+        return INSTANCE;
+    }
 
     /**
      * load config
@@ -58,12 +64,12 @@ public class ConfigAnnotations {
      */
     public void saveValues(JavaPlugin plugin, String configFilePath, Object targetTosave) {
         AnnotationInterpreter interpreter = new BeanInterpreter();
-        DataConfigFile configuration = initConfig(plugin, configFilePath, targetTosave.getClass());
+        YmlMaker configuration = initConfig(plugin, configFilePath, targetTosave.getClass());
         interpreter.encodeToYml(configuration.getConfig(), targetTosave);
         configuration.saveConfig();
     }
 
-    private <T> DataConfigFile initConfig(JavaPlugin plugin, String configFilePath, Class<T> classz) {
+    private <T> YmlMaker initConfig(JavaPlugin plugin, String configFilePath, Class<T> classz) {
         String configFileName;
         if (configFilePath != null) {
             configFileName = configFilePath;
@@ -71,6 +77,6 @@ public class ConfigAnnotations {
             ConfigBean configBean = classz.getAnnotation(ConfigBean.class);
             configFileName = configBean.file();
         }
-        return new DataConfigFile(plugin, configFileName);
+        return new YmlMaker(plugin, configFileName);
     }
 }

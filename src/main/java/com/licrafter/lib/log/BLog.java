@@ -4,14 +4,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.logging.Level;
+
 
 /**
  * Created by shell on 2017/12/3.
  * <p>
  * Github: https://github.com/shellljx
  */
-public class LicraftLog {
-
+public class BLog {
 
     public static void printEnableInfo(JavaPlugin plugin) {
         String enableInfo =
@@ -32,8 +33,16 @@ public class LicraftLog {
         Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', getLogPrefix(sender) + " " + message));
     }
 
-    public static void consoleMessage(String message){
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',"[LicraftLib]" + " " + message));
+    public static void consoleMessage(String message) {
+        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "[LicraftLib]" + " " + message));
+    }
+
+    public static void info(JavaPlugin plugin, String info) {
+        plugin.getLogger().log(Level.INFO, info);
+    }
+
+    public static void warning(JavaPlugin plugin, String warning) {
+        plugin.getLogger().log(Level.WARNING, warning);
     }
 
     public static String getLogPrefix(String sender) {

@@ -1,6 +1,6 @@
 package com.licrafter.lib.config;
 
-import com.licrafter.lib.log.LicraftLog;
+import com.licrafter.lib.log.BLog;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
@@ -26,7 +26,7 @@ public class LicraftConfigUtils {
         }
         if (!new File(dataFolder, configPath).isFile()) {
             if (writeDefaultFileFromJar(plugin, new File(plugin.getDataFolder(), configPath), configPath, true)) {
-                LicraftLog.consoleMessage(plugin.getName(), "Wrote default config...");
+                BLog.consoleMessage(plugin.getName(), "Wrote default config...");
             }
         }
     }
@@ -76,7 +76,7 @@ public class LicraftConfigUtils {
             }
             return false;
         } catch (Exception ex) {
-            LicraftLog.consoleMessage(plugin.getName(), "Failed to write file: " + writeName);
+            BLog.consoleMessage(plugin.getName(), "Failed to write file: " + writeName);
             return false;
         }
     }

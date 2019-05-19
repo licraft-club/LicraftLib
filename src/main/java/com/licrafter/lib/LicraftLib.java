@@ -1,6 +1,6 @@
 package com.licrafter.lib;
 
-import com.licrafter.lib.log.LicraftLog;
+import com.licrafter.lib.log.BLog;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -12,11 +12,11 @@ public class LicraftLib extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        LicraftLog.printEnableInfo(this);
+        BLog.printEnableInfo(this);
     }
 
     @Override
     public void onDisable() {
-        LicraftLog.printDisableInfo(this);
+        BLog.printDisableInfo(this);
     }
 }
